@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/gkwa/nightlywrite/core"
 	"github.com/gkwa/nightlywrite/internal/logger"
 )
 
@@ -24,9 +25,6 @@ var rootCmd = &cobra.Command{
 	Short: "A brief description of your application",
 	Long:  `A longer description that spans multiple lines and likely contains examples and usage of using your application.`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		// Initialize the console logger just before running
-		// a command only if one wasn't provided. This allows other
-		// callers (e.g. unit tests) to inject their own logger ahead of time.
 		if cliLogger.IsZero() {
 			cliLogger = logger.NewConsoleLogger(verbose, logFormat == "json")
 		}
@@ -60,6 +58,10 @@ func init() {
 		fmt.Printf("Error binding log-format flag: %v\n", err)
 		os.Exit(1)
 	}
+
+	ud := core.NewUnicodeDetector()
+	rootCmd.AddCommand(NewHelloCmd(ud))
+	rootCmd.AddCommand(versionCmd)
 }
 
 func initConfig() {

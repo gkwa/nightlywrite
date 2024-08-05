@@ -6,7 +6,17 @@ import (
 	"unicode/utf8"
 )
 
-func IsUnicode(filePath string) (bool, string, error) {
+type UnicodeDetector interface {
+	IsUnicode(filePath string) (bool, string, error)
+}
+
+type unicodeDetector struct{}
+
+func NewUnicodeDetector() UnicodeDetector {
+	return &unicodeDetector{}
+}
+
+func (ud *unicodeDetector) IsUnicode(filePath string) (bool, string, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return false, "", fmt.Errorf("error reading file: %v", err)

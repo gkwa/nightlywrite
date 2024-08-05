@@ -8,20 +8,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var helloCmd = &cobra.Command{
-	Use:   "hello",
-	Short: "A brief description of your command",
-	Long:  `A longer description that spans multiple lines and likely contains examples and usage of using your command.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		isUnicode, codePoint, err := core.IsUnicode("testdata/test.md")
-		if err != nil {
-			cmd.PrintErrf("Error: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("Is Unicode: %v\nCode Point: %s\n", isUnicode, codePoint)
-	},
+type helloCmd struct {
+	ud core.UnicodeDetector
 }
 
-func init() {
-	rootCmd.AddCommand(helloCmd)
+func NewHelloCmd(ud core.UnicodeDetector) *cobra.Command {
+	hc := &helloCmd{ud: ud}
+
+	cmd := &cobra.Command{
+		Use:   "hello",
+		Short: "A brief description of your command",
+		Long:  `A longer description that spans multiple lines and likely contains examples and usage of using your command.`,
+		Run:   hc.run,
+	}
+
+	return cmd
+}
+
+func (hc *helloCmd) run(cmd *cobra.Command, args []string) {
+	isUnicode, codePoint, err := hc.ud.IsUnicode("testdata/test.md")
+	if err != nil {
+		cmd.PrintErrf("Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Is Unicode: %v\nCode Point: %s\n", isUnicode, codePoint)
 }
