@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gkwa/nightlywrite/core"
@@ -26,10 +25,9 @@ func NewHelloCmd(ud core.UnicodeDetector) *cobra.Command {
 }
 
 func (hc *helloCmd) run(cmd *cobra.Command, args []string) {
-	isUnicode, codePoint, err := hc.ud.IsUnicode("testdata/test.md")
+	err := hc.ud.IsUnicode(os.Stdin, os.Stdout)
 	if err != nil {
 		cmd.PrintErrf("Error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Is Unicode: %v\nCode Point: %s\n", isUnicode, codePoint)
 }

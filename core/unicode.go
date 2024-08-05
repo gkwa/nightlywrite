@@ -2,12 +2,12 @@ package core
 
 import (
 	"fmt"
-	"os"
+	"io"
 	"unicode/utf8"
 )
 
 type UnicodeDetector interface {
-	IsUnicode(filePath string) (bool, string, error)
+	IsUnicode(reader io.Reader, writer io.Writer) error
 }
 
 type unicodeDetector struct{}
@@ -16,22 +16,25 @@ func NewUnicodeDetector() UnicodeDetector {
 	return &unicodeDetector{}
 }
 
-func (ud *unicodeDetector) IsUnicode(filePath string) (bool, string, error) {
-	content, err := os.ReadFile(filePath)
+func (ud *unicodeDetector) IsUnicode(reader io.Reader, writer io.Writer) error {
+	content, err := io.ReadAll(reader)
 	if err != nil {
-		return false, "", fmt.Errorf("error reading file: %v", err)
+		return fmt.Errorf("error reading content: %v", err)
 	}
 
 	if !utf8.Valid(content) {
-		return false, "", fmt.Errorf("the file contains invalid UTF-8")
+		fmt.Fprintf(writer, "The content contains invalid UTF-8\n")
+		return nil
 	}
 
 	if utf8.RuneCount(content) != 1 {
-		return false, "", fmt.Errorf("the text file does not contain a single character")
+		fmt.Fprintf(writer, "The content does not contain a single character\n")
+		return nil
 	}
 
 	r, _ := utf8.DecodeRune(content)
 	codePoint := fmt.Sprintf("U+%04X", r)
 
-	return true, codePoint, nil
+	fmt.Fprintf(writer, "Is Unicode: true\nCode Point: %s\n", codePoint)
+	return nil
 }
