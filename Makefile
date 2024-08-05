@@ -27,7 +27,7 @@ iterate: check $(BIN)
 .PHONY: check # lint and vet
 check: .timestamps/.check.time
 
-.timestamps/.check.time: goimports tidy golines fmt lint vet
+.timestamps/.check.time: goimports tidy fmt lint vet
 	@mkdir -p .timestamps
 	@touch $@
 
@@ -48,7 +48,7 @@ goreleaser: goreleaser --clean
 goimports: .timestamps/.goimports.time
 .timestamps/.goimports.time: $(SRC)
 	goimports -w $(SRC)
-	goimports-reviser -write=file -set-alias -rm-unused -format $(SRC)
+	goimports-reviser -output=file -set-alias -rm-unused -format $(SRC)
 	@mkdir -p .timestamps
 	@touch $@
 
